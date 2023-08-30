@@ -22,11 +22,12 @@ if __name__ == "__main__":
 
     if goal == "symnmf":
         symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
-    # elif goal == "sym":
-    #     symnmf.calculate_sym(X)  # Call the C function via the wrapper
-    # elif goal == "ddg":
-    #     symnmf.calculate_ddg(X)  # Call the C function via the wrapper
-    # elif goal == "norm
+    elif goal == "sym":
+        symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
+    elif goal == "ddg":
+        symnmf.ddg(x_list, d, n)  # Call the C function via the wrapper
+    elif goal == "norm":
+        symnmf.norm(x_list, d, n)
 
     # Free the C array memory if necessary
     # if goal == "symnmf":
