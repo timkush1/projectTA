@@ -8,6 +8,11 @@ def read_input(file_name):
 def convert_to_list(X):
     return X.tolist()
 
+def print_matrix(H):
+    for row in H:
+        print(" ".join("{:.4f}".format(number) for number in row))
+
+
 if __name__ == "__main__":
     k = int(sys.argv[1])
     goal = sys.argv[2]
@@ -21,14 +26,14 @@ if __name__ == "__main__":
     d = len(x_list[0])  # Get the dimensionality of the data points
 
     if goal == "symnmf":
-        symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
+        H = symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
     elif goal == "sym":
         symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
     elif goal == "ddg":
         symnmf.ddg(x_list, d, n)  # Call the C function via the wrapper
     elif goal == "norm":
         symnmf.norm(x_list, d, n)
+    
+    # H_np = np.array(H)
+    print_matrix(H)
 
-    # Free the C array memory if necessary
-    # if goal == "symnmf":
-    #     symnmf.free_c_array(c_array)

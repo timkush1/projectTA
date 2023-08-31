@@ -1,18 +1,9 @@
 
-struct cord
-{
-    double value;
-    struct cord *next;
-};
 
-struct vector
-{
-    struct vector *next;
-    struct cord *cords;
-};
-double getDistance1(double *centroids, struct vector *head_vec, int D);
-double getDistance2(double *centroids, double *newCentroids, int D);
-void printClusters(double **, int K, int D);
-double *calculateCentroids(double *newCentroid,int **arr, struct vector *head_vec, int *counters, int D, int N, int i);
-int updateCentroids(double **centroids, int **arr, struct vector *head_vec, int *counters, int K, int D, int N, double epsilon);
-void kmeans_clustering(double ** clusters, struct vector *head_vec , int K, int D, int N, int iter, double epsilon);
+double** createDdg(double** arr, int n, int d); // create diagonal matrix
+double rowSum(double* arr, int d); // calculate sum of one row
+double** createNorm(double** A, double** D, int n); // create the W(normalized) matrix
+void matrixMulti(double** first, double** second, double** result, int n); // updating "result matrix" to be matrix multiplication of first*second
+double** createSim(double** X,double** A,int n, int d) ; // create matrix A(similarity matrix)
+double getSquaredDistance(double *pointA, double *pointB, int D) ;  //return distance between two points */
+void printMatrix(double** x, int n,int d);

@@ -7,109 +7,196 @@
 
 // Function prototype declaration
 static double **convertPyToArray(PyObject *centerList, int N, int D);
+PyObject* convertArrayToPy(double** array, int rows, int cols);
 
-static double **convertPyToArray(PyObject *centerList, int N, int D) {
-    double **clusters = (double **)malloc(N * sizeof(double *));
+static double **convertPyToArray(PyObject *centerList, int N, int D) 
+{
+    double **X = (double **)malloc(N * sizeof(double *));
     for (int i = 0; i < N; i++) {
         PyObject *vector = PyList_GetItem(centerList, i);
-        clusters[i] = (double *)malloc(D * sizeof(double));
+        X[i] = (double *)malloc(D * sizeof(double));
         for (int j = 0; j < D; j++) {
             PyObject *element = PyList_GetItem(vector, j);
-            clusters[i][j] = PyFloat_AsDouble(element);
+            X[i][j] = PyFloat_AsDouble(element);
         }
     }
-    return clusters;
+    return X;
 }
+
+
+PyObject *convertArrayToPy(double **finalC, int K, int D)
+{
+    PyObject *outer_list = PyList_New(K);
+    int i;
+    int j;
+    for (i = 0; i < K; i++)
+    {
+        PyObject *inner_list = PyList_New(D);
+        for (j = 0; j < D; j++)
+        {
+            PyObject *py_double = PyFloat_FromDouble(finalC[i][j]);
+            PyList_SetItem(inner_list, j, py_double); // Note: PyList_SetItem steals a reference to item.
+        }
+        PyList_SetItem(outer_list, i, inner_list);
+    }
+
+    return outer_list;
+}
+
 
 static PyObject *fit(PyObject *self, PyObject *args) {
     PyObject* centerList;
     int N;
     int D;
-    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) {
+    double** diag;
+    double** A;
+    double** norm;
+    int i;
+    int j;
+    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) //checking that function gets the rigth arguments 
+    {
         return NULL;
     }
+    double **X = convertPyToArray(centerList, N, D);//convert X to 2D array
 
-    double **clusters = convertPyToArray(centerList, N, D);
-    // ... Rest of your fit function code ...
+    
+    A = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    diag = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    norm = (double**)malloc(N * sizeof(double*));   
+    for (i = 0; i < N; i++)
+    {
+        A[i] = (double*)malloc(N * sizeof(double));
+        diag[i] = (double*)malloc(N * sizeof(double));
+        norm[i] = (double*)malloc(N * sizeof(double));
+    }
+    A = createSim(X,A,N,D);
+    // printf("the sym \n");
+    // printMatrix(A,N,N);
+    diag=createDdg(A,N,N);
+    // printf("the ddg \n");
+    // printMatrix(diag,N,N);
+    norm = createNorm(A,diag,N);
+    // printf("the norm \n");
+    // printMatrix(norm,N,N);
+    PyObject* py_H = convertArrayToPy(norm,N,N);
 
 
-    printf("sasiaa \n");
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < D; j++) {
-            printf("%.4f", clusters[i][j]);
-            if (j < D - 1) {
-                printf(", ");
-            }
+    for (i = 0; i < N; i++) {
+        free(X[i]);
+    }
+    free(X);
+
+    return py_H;
+}
+
+static PyObject *sym(PyObject *self, PyObject *args) 
+{
+    PyObject* centerList;
+    int N;
+    int D;
+    double** A;
+    int i;
+    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N))//checking that function gets the rigth arguments  
+    {
+        return NULL;
+    }
+    
+    double **X = convertPyToArray(centerList, N, D);//convert X to 2D array
+    //for (int i = 0; i < N; i++) {
+     //   free(X[i]);
+    //}
+    A = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    for (i = 0; i < N; i++)
+    {
+        A[i] = (double*)malloc(N * sizeof(double));
+        for(int j=0;j<N;j++)
+        {
+            A[i][j]=0;
         }
-        printf("\n");
     }
-
-
-
-
-
-    for (int i = 0; i < N; i++) {
-        free(clusters[i]);
-    }
-    free(clusters);
+    //if(createSim(X,A,N,D) == NULL) //check that there arent errors on the call
+    //{
+    //   /*yErr_SetString(PyExc_RuntimeError, GENERAL_ERROR);*/
+    //    return NULL;
+    //}
+    A = createSim(X,A,N,D);
+    printMatrix(A,N,N);//print the matrix
+    //printf("sym3\n"); 
+    free(X);
 
     Py_RETURN_NONE;
 }
 
-static PyObject *sym(PyObject *self, PyObject *args) {
+static PyObject *ddg(PyObject *self, PyObject *args) 
+{
     PyObject* centerList;
     int N;
     int D;
-    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) {
+    double** diag;
+    int i;
+    
+    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N))//checking that function gets the rigth arguments 
+    {
         return NULL;
     }
-
-    double **clusters = convertPyToArray(centerList, N, D);
-    // ... Rest of your sym function code ...
-
-    for (int i = 0; i < N; i++) {
-        free(clusters[i]);
+    double **X = convertPyToArray(centerList, N, D);//convert X to 2D array
+    diag = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    for (i = 0; i < N; i++)
+    {
+        diag[i] = (double*)malloc(N * sizeof(double));
     }
-    free(clusters);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *ddg(PyObject *self, PyObject *args) {
-    PyObject* centerList;
-    int N;
-    int D;
-    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) {
+    if(createDdg(X,N,D) == NULL) //check that there arent errors on the call
+    {
+        /*yErr_SetString(PyExc_RuntimeError, GENERAL_ERROR);*/
         return NULL;
     }
+    diag=createDdg(X,N,D);//call the function
+    printMatrix(diag,N,N);//print the matrix
 
-    double **clusters = convertPyToArray(centerList, N, D);
-    // ... Rest of your ddg function code ...
-
-    for (int i = 0; i < N; i++) {
-        free(clusters[i]);
+    for (int i = 0; i < N; i++) 
+    {
+        free(X[i]);
     }
-    free(clusters);
-
+    free(X);
     Py_RETURN_NONE;
 }
 
 static PyObject *norm(PyObject *self, PyObject *args) {
+    //printf("norm1 \n");
     PyObject* centerList;
     int N;
     int D;
-    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) {
+    double** norm;
+    int i;
+    double** A;
+    double** diag;
+    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) 
+    {
         return NULL;
     }
-
-    double **clusters = convertPyToArray(centerList, N, D);
-    // ... Rest of your norm function code ...
-
-    for (int i = 0; i < N; i++) {
-        free(clusters[i]);
+    //printf("norm2 \n");
+    double **X = convertPyToArray(centerList, N, D);//convert X to 2D array
+    norm = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    A = (double**)malloc(N * sizeof(double*));
+    diag = (double**)malloc(N * sizeof(double*));
+    for (i = 0; i < N; i++)
+    {
+        norm[i] = (double*)malloc(N * sizeof(double));
+        A[i] = (double*)malloc(N * sizeof(double));
+        diag[i] = (double*)malloc(N * sizeof(double));
     }
-    free(clusters);
-
+    //A = createSim(X,A,N,D);
+    //printMatrix(A,N,D);
+    //printf("\n");
+    A = createSim(X,A,N,D);
+    diag = createDdg(X,N,D);
+    norm = createNorm(X,diag,N);
+    //printMatrix(norm,N,D);
+    for (int i = 0; i < N; i++) {
+        free(X[i]);
+    }
+    free(X);
+    //printf("norm3 \n");
     Py_RETURN_NONE;
 }
 
