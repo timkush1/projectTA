@@ -23,7 +23,6 @@ static double **convertPyToArray(PyObject *centerList, int N, int D)
     return X;
 }
 
-
 PyObject *convertArrayToPy(double **finalC, int K, int D)
 {
     PyObject *outer_list = PyList_New(K);

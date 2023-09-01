@@ -15,7 +15,6 @@ void printMatrix(double** x, int n,int d);
 
 int i;
 int sum;
-int i;
 int k;
 int z;
 
