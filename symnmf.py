@@ -10,8 +10,7 @@ def convert_to_list(X):
 
 def print_matrix(H):
     for row in H:
-        print(" ".join("{:.4f}".format(number) for number in row))
-
+        print(",".join("{:.4f}".format(number) for number in row))
 
 if __name__ == "__main__":
     k = int(sys.argv[1])
@@ -52,10 +51,9 @@ if __name__ == "__main__":
             H_new = H * (1-beta+beta*((WH) / (np.dot(np.dot(H, H.T), H))) )
             
             # Check for convergence
-            if np.linalg.norm(H_new - H, 'fro') < epsilon:
+            if np.linalg.norm(H_new - H, 'fro')**2 < epsilon:
                 converged = True
-            else:
-                H =  H_new
+            H =  H_new
             iteration += 1
     elif goal == "sym":
         symnmf.sym(x_list, d, n)  # Call the C function via the wrapper

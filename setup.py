@@ -7,7 +7,7 @@ setup(name='symnmf',
       ext_modules=[module])
 
 # python3 setup.py build_ext --inplace
-# python3 symnmf.py 2 symnmf input_1.txt
+# python3 symnmf.py 3 symnmf input_1.txt
 
 # https://github.com/timkush1/projectTA.git
 
