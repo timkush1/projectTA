@@ -13,60 +13,67 @@ def input_data(vector_file):
             vector = [float(number) for number in values]
             ret_vectors.append(vector)
     return ret_vectors
-def initialize_H(W, k):
-    np.random.seed(0)
-    m = np.mean(W)  
-    upper_bound = 2 * np.sqrt(m / k)   
-    n = len(W)  
-    H = np.random.uniform(0, upper_bound, size=(n, k))
-    return H.tolist()
-def euclidian_distance(v1, v2): # method for calculating the euclidian 
-# distance between 2 vectors of the same length
-    ret = sum((i1 - i2) ** 2 for i1, i2 in zip(v1, v2))
-    return float(math.sqrt(ret))
-def kmeans(k, max_iter, vector_list):
-    vector_length = len(vector_list) #amount of vectors (N)
-    vector_size = len(vector_list[0]) #length of vector (d)
-    clusters = [deepcopy(vector) for vector in vector_list[:k]]  # initializing the cluster list as the first K data points
-    cluster_indexes = [0 for _ in range(vector_length)]
-    convergence = [0 for _ in range(k)]  # checking if the clusters have converged
-    loop_counter = 0
-    EPSILON = 0.0001
 
-    while loop_counter < max_iter:
-        for i in range(vector_length):  # finding the closest cluster to each vector
-            min_dist = euclidian_distance(vector_list[i], clusters[0])
-            min_index = 0
-            for j in range(1, k):
-                distance = euclidian_distance(vector_list[i], clusters[j])
-                if distance < min_dist:
-                    min_index = j
-                    min_dist = distance
-            cluster_indexes[i] = min_index
-        for i in range(k):  # updating the clusters
-            prev_cluster = clusters[i][:]  # saving the vector before update
-            count = 0
-            update_vec = [0 for _ in range(vector_size)]
-            for j in range(vector_length):
-                if cluster_indexes[j] == i:
-                    for s in range(vector_size):
-                        update_vec[s] += vector_list[j][s]
-                    count += 1
-            if count > 0:  # at least 1 vector belongs to the cluster
-                for s in range(vector_size):
-                    clusters[i][s] = float(update_vec[s]/count)
-            dist_converge = euclidian_distance(prev_cluster, clusters[i])
-            if dist_converge < EPSILON:
-                convergence[i] = -1
-            count_converge = 0
-            if i == k-1:  # end of the cluster array, need to check convergence for them
-                count_converge = convergence.count(-1)
-            if count_converge == k:
-                loop_counter = max_iter
-            else:
-                count_converge = 0
-        loop_counter += 1
-    return clusters
+def distance(a, b):
+    distance = 0
+    for i in range(len(a)):
+        distance = distance +  ((a[i]-b[i])**2) 
+    return math.sqrt(distance)
+
+
+#Calculates new centroid for requested cluster
+def centroidCalculator(cluster):
+    newCentroid = [0 for x in cluster[0]]
+    for vector in cluster:
+        for i in range(len(vector)):
+            newCentroid[i] = newCentroid[i] + vector[i]
+    
+    for i in range(len(newCentroid)):
+        newCentroid[i] = newCentroid[i]/len(cluster)
+    return newCentroid
+
+
+
+#Updates all centroids
+def updateCentroids(clustersList, centroidsList,K):
+    
+    epsilon = 0.001
+    epsilonIndicator = True
+    for i in range(K):
+        newCentroid = centroidCalculator(clustersList[i])
+        if (distance(newCentroid,centroidsList[i]) >= epsilon):
+            epsilonIndicator = False
+        centroidsList[i] = newCentroid
+    return epsilonIndicator
+
+def kmeans(K,iter,vectorsList,D,N):      
+    centroidsList = [i for i in vectorsList[:K]]#array of centroids with k length
+    clustersList = [[centroid] for centroid in centroidsList] # k reshimot
+    iterCounter = 0
+    epsilonIndicator = False
+    while not epsilonIndicator and iterCounter<iter:
+        for i in range(N): #run over vector list
+            currVector = vectorsList[i]
+            minDist = float('inf')
+            minIndex = -1
+            for j in range(K): #run over centroids list
+                dist = distance(currVector, centroidsList[j])
+                if(dist < minDist):#finding relevant cluster
+                    minDist = dist
+                    minIndex = j
+            for h in range (K):
+              if clustersList[h].count(currVector) >= 1:
+              #  if currVector in clustersList[h]:
+                
+                   clustersList[h].remove(currVector)
+            for h in range (K):
+                if minIndex == h:        
+                    clustersList[h].append(currVector)#updating relevant cluster
+        
+        iterCounter += 1    
+
+        epsilonIndicator = updateCentroids(clustersList, centroidsList,K)#check if all the cluster has changed according to the terms 
+    return (centroidsList)
 def symnfcompare(x_list, d, n,k):
     W = symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
 
@@ -105,7 +112,7 @@ def main():
     vectors = input_data(file_name)
     N = len(vectors)  # rows 
     D = len(vectors[0])  # columns
-    cluster_centroids = kmeans(3,300,vectors)
+    cluster_centroids = kmeans(3,300,vectors,D,N)
     kmeans_distances = pairwise_distances(vectors, cluster_centroids)
     kmeans_labels = np.argmin(kmeans_distances, axis=1)
     kmeans_score = silhouette_score(vectors, kmeans_labels)

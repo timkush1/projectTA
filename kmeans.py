@@ -32,14 +32,6 @@ def inputToVectorsList(inputData):
     return (vectorsList)
 
 
-
-#printing in the requested foramt
-def finishPrint(vectorsList):
-    for vector in vectorsList:
-        rounded_vector = [round(x, 4) for x in vector]
-        print(','.join(str(x) for x in rounded_vector))
-    print("")
-
 #Calculates distance between two vectors 
 def distance(a, b):
     distance = 0
