@@ -22,8 +22,8 @@ if __name__ == "__main__":
     # Convert X to a list of lists
     x_list = convert_to_list(X)
 
-    n = len(x_list)  # Get the number of data points
-    d = len(x_list[0])  # Get the dimensionality of the data points
+    n = len(x_list)  # Get the number of data points (lines)
+    d = len(x_list[0])  # Get the dimensionality of the data points (columns)
 
     if goal == "symnmf":
         W = symnmf.norm(x_list, d, n)  # Call the wrapped function with the list
@@ -58,12 +58,15 @@ if __name__ == "__main__":
             iteration += 1
 
     elif goal == "sym":
-        symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
+        sym = symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
+        print_matrix(sym)
     elif goal == "ddg":
-        symnmf.ddg(x_list, d, n)  # Call the C function via the wrapper
+        ddg = symnmf.ddg(x_list, d, n)  # Call the C function via the wrapper
+        print_matrix(ddg)
     elif goal == "norm":
-        symnmf.norm(x_list, d, n)
+        W = symnmf.norm(x_list, d, n)
+        print_matrix(W)
     
     # print_matrix(W)
-    print_matrix(H)
+    # print_matrix(H)
 

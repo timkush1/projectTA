@@ -68,14 +68,8 @@ static PyObject *symnmf(PyObject *self, PyObject *args) {
         norm[i] = (double*)malloc(N * sizeof(double));
     }
     A = createSim(X,A,N,D);
-    // printf("the sym \n");
-    // printMatrix(A,N,N);
     diag=createDdg(A,N,N);
-    // printf("the ddg \n");
-    // printMatrix(diag,N,N);
     norm = createNorm(A,diag,N);
-    // printf("the norm \n");
-    // printMatrix(norm,N,N);
     PyObject* py_H = convertArrayToPy(norm,N,N);
 
 
@@ -112,11 +106,7 @@ static PyObject *norm(PyObject *self, PyObject *args) {
         norm[i] = (double*)malloc(N * sizeof(double));
     }
     A = createSim(X,A,N,D);
-    // printf("the sym \n");
-    // printMatrix(A,N,N);
     diag=createDdg(A,N,N);
-    // printf("the ddg \n");
-    // printMatrix(diag,N,N);
     norm = createNorm(A,diag,N);
     // printf("the norm \n");
     // printMatrix(norm,N,N);
@@ -138,36 +128,44 @@ static PyObject *sym(PyObject *self, PyObject *args)
     int D;
     double** A;
     int i;
-    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N))//checking that function gets the rigth arguments  
+    
+    if (!PyArg_ParseTuple(args, "Oii", &centerList, &D, &N)) 
     {
         return NULL;
     }
     
-    double **X = convertPyToArray(centerList, N, D);//convert X to 2D array
-    //for (int i = 0; i < N; i++) {
-     //   free(X[i]);
-    //}
-    A = (double**)malloc(N * sizeof(double*));//allocate memory for the new matrix
+    double **X = convertPyToArray(centerList, N, D);
+
+    A = (double**)malloc(N * sizeof(double*));
     for (i = 0; i < N; i++)
     {
         A[i] = (double*)malloc(N * sizeof(double));
-        for(int j=0;j<N;j++)
+        for(int j=0; j<N; j++)
         {
-            A[i][j]=0;
+            A[i][j] = 0;
         }
     }
-    //if(createSim(X,A,N,D) == NULL) //check that there arent errors on the call
-    //{
-    //   /*yErr_SetString(PyExc_RuntimeError, GENERAL_ERROR);*/
-    //    return NULL;
-    //}
-    A = createSim(X,A,N,D);
-    printMatrix(A,N,N);//print the matrix
-    //printf("sym3\n"); 
+
+    A = createSim(X, A, N, D);
+    PyObject* py_H = convertArrayToPy(A, N, N);
+
+    // Free X
+    for (i = 0; i < N; i++) 
+    {
+        free(X[i]);
+    }
     free(X);
 
-    Py_RETURN_NONE;
+    // Free A
+    for (i = 0; i < N; i++)
+    {
+        free(A[i]);
+    }
+    free(A);
+
+    return py_H;
 }
+
 
 static PyObject *ddg(PyObject *self, PyObject *args) 
 {
@@ -193,14 +191,14 @@ static PyObject *ddg(PyObject *self, PyObject *args)
         return NULL;
     }
     diag=createDdg(X,N,D);//call the function
-    printMatrix(diag,N,N);//print the matrix
-
+    // printMatrix(diag,N,N);//print the matrix
+    PyObject* py_H = convertArrayToPy(diag,N,N);
     for (int i = 0; i < N; i++) 
     {
         free(X[i]);
     }
     free(X);
-    Py_RETURN_NONE;
+    return py_H;
 }
 
 // static PyObject *norm(PyObject *self, PyObject *args) {
