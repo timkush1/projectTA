@@ -13,6 +13,7 @@ def print_matrix(H):
         print(",".join("{:.4f}".format(number) for number in row))
 
 if __name__ == "__main__":
+    # האם צריך לבדוק אם k קטן מ N
     k = int(sys.argv[1])
     goal = sys.argv[2]
     file_name = sys.argv[3]
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     d = len(x_list[0])  # Get the dimensionality of the data points
 
     if goal == "symnmf":
-        W = symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
+        W = symnmf.norm(x_list, d, n)  # Call the wrapped function with the list
 
         # Initialize H
         m = np.mean(W)
@@ -55,6 +56,7 @@ if __name__ == "__main__":
                 converged = True
             H =  H_new
             iteration += 1
+
     elif goal == "sym":
         symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
     elif goal == "ddg":
@@ -62,8 +64,6 @@ if __name__ == "__main__":
     elif goal == "norm":
         symnmf.norm(x_list, d, n)
     
-    # H_np = np.array(H)
-    print_matrix(W)
-    print ("shasi")
+    # print_matrix(W)
     print_matrix(H)
 

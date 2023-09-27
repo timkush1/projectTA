@@ -75,7 +75,7 @@ def kmeans(K,iter,vectorsList,D,N):
         epsilonIndicator = updateCentroids(clustersList, centroidsList,K)#check if all the cluster has changed according to the terms 
     return (centroidsList)
 def symnfcompare(x_list, d, n,k):
-    W = symnmf.fit(x_list, d, n)  # Call the wrapped function with the list
+    W = symnmf.symnmf(x_list, d, n)  # Call the wrapped function with the list
 
     # Initialize H
     m = np.mean(W)
