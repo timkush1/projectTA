@@ -106,8 +106,14 @@ double** createNorm(double** A, double** D, int n)// create the W(normalized) ma
     }
     
     matrixMulti(D, A, W, n);
-    //printMatrix(W,n,n);
     matrixMulti(W, D, result, n);
+
+    // Free the memory allocated for W
+    for (i = 0; i < n; i++) {
+        free(W[i]);
+    }
+    free(W);
+    
     return result;
 }
 
@@ -127,16 +133,17 @@ void matrixMulti(double** first, double** second, double** result, int n)// upda
         }
     }
 }
-void printMatrix(double** x, int n,int d)
-{
-    int i;
-    int j;
-    for (i = 0; i < n; i++) 
-    {
-        for (j = 0; j < d; j++) 
-        {
-            printf("%.4f,", x[i][j]); // Print each element followed by a coma
-        }
-         printf("\n"); // Print a new line after each row
-    }
-}
+// void printMatrix(double** x, int n,int d){
+//     int i;
+//     int j;
+//     for (i = 0; i < n; i++) 
+//     {
+//         for (j = 0; j < d; j++) 
+//         {
+//             printf("%.4f", x[i][j]); // Print each element followed by a coma
+//             if (j != d-1)
+//                 printf(",");
+//         }
+//          printf("\n"); // Print a new line after each row
+//     }
+// }

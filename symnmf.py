@@ -27,35 +27,15 @@ if __name__ == "__main__":
 
     if goal == "symnmf":
         W = symnmf.norm(x_list, d, n)  # Call the wrapped function with the list
-
+        
         # Initialize H
         m = np.mean(W)
         np.random.seed(0)
-        H = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))  
+        H = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k)) 
+        H = H.tolist() 
 
-
-        W = np.array(W, dtype=np.float64)  # Convert W to a NumPy array
-        H = np.array(H, dtype=np.float64)  # Convert H to a NumPy array
-        
-        # Constants for the update rule
-        beta = 0.5
-        epsilon = 1e-4  # Convergence threshold
-        # Iterative update of H
-        converged = False
-        max_iterations = 300  # You can adjust this
-        iteration = 0
-
-        W = np.array(W)  # Convert W to a NumPy array   
-
-        while not converged and iteration < max_iterations:
-            WH = np.dot(W, H)
-            H_new = H * (1-beta+beta*((WH) / (np.dot(np.dot(H, H.T), H))) )
-            
-            # Check for convergence
-            if np.linalg.norm(H_new - H, 'fro')**2 < epsilon:
-                converged = True
-            H =  H_new
-            iteration += 1
+        H = symnmf.symnmf(W, H, d, n, k)
+        print_matrix(H)
 
     elif goal == "sym":
         sym = symnmf.sym(x_list, d, n)  # Call the C function via the wrapper
@@ -67,6 +47,3 @@ if __name__ == "__main__":
         W = symnmf.norm(x_list, d, n)
         print_matrix(W)
     
-    # print_matrix(W)
-    # print_matrix(H)
-
