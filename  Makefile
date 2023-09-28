@@ -1,0 +1,27 @@
+# Compiler
+CC = gcc
+
+# Compilation flags
+CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors
+
+# Source files
+SRCS = symnmf.c other_sources.c
+
+# Object files (derived from SRCS)
+OBJS = $(SRCS:.c=.o)
+
+# Executable name
+EXEC = symnmf
+
+all: $(EXEC)
+
+$(EXEC): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	rm -f $(OBJS) $(EXEC)
+
+.PHONY: all clean

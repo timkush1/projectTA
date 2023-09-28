@@ -37,7 +37,7 @@ def centroidCalculator(cluster):
 #Updates all centroids
 def updateCentroids(clustersList, centroidsList,K):
     
-    epsilon = 0.001
+    epsilon = 1e-4
     epsilonIndicator = True
     for i in range(K):
         newCentroid = centroidCalculator(clustersList[i])
@@ -74,37 +74,23 @@ def kmeans(K,iter,vectorsList,D,N):
 
         epsilonIndicator = updateCentroids(clustersList, centroidsList,K)#check if all the cluster has changed according to the terms 
     return (centroidsList)
-def symnfcompare(x_list, d, n,k):
-    W = symnmf.symnmf(x_list, d, n)  # Call the wrapped function with the list
 
+# def print_matrix(H):
+#     for row in H:
+#         print(",".join("{:.4f}".format(number) for number in row))
+
+def symnfcompare(x_list, d, n,k):
+    W = symnmf.norm(x_list, d, n)  # Call the wrapped function with the list
+        
     # Initialize H
     m = np.mean(W)
     np.random.seed(0)
-    H = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))  
+    H = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k)) 
+    H = H.tolist() 
 
-
-    W = np.array(W, dtype=np.float64)  # Convert W to a NumPy array
-    H = np.array(H, dtype=np.float64)  # Convert H to a NumPy array
-    
-    # Constants for the update rule
-    beta = 0.5
-    epsilon = 1e-4  # Convergence threshold
-    # Iterative update of H
-    converged = False
-    max_iterations = 300  # You can adjust this
-    iteration = 0
-
-    W = np.array(W)  # Convert W to a NumPy array   
-
-    while not converged and iteration < max_iterations:
-        WH = np.dot(W, H)
-        H_new = H * (1-beta+beta*((WH) / (np.dot(np.dot(H, H.T), H))) )
-        
-        # Check for convergence
-        if np.linalg.norm(H_new - H, 'fro')**2 < epsilon:
-            converged = True
-        H =  H_new
-        iteration += 1
+    H = symnmf.symnmf(W, H, d, n, k)
+    # print_matrix(H)
+ 
     return (H)
 def main():
     k = int(sys.argv[1])
@@ -112,7 +98,7 @@ def main():
     vectors = input_data(file_name)
     N = len(vectors)  # rows 
     D = len(vectors[0])  # columns
-    cluster_centroids = kmeans(3,300,vectors,D,N)
+    cluster_centroids = kmeans(k,300,vectors,D,N)
     kmeans_distances = pairwise_distances(vectors, cluster_centroids)
     kmeans_labels = np.argmin(kmeans_distances, axis=1)
     kmeans_score = silhouette_score(vectors, kmeans_labels)
