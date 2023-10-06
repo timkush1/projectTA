@@ -117,8 +117,8 @@ def main():
     sym_score = silhouette_score(vectors, sym_labels)
     formatted_element_kmeans = "{:.4f}".format(kmeans_score)
     formatted_element_sym = "{:.4f}".format(sym_score)
-    print("nmf: ", formatted_element_sym)
-    print("kmeans: ", formatted_element_kmeans)
+    print("nmf:", formatted_element_sym)
+    print("kmeans:", formatted_element_kmeans)
     
     
 if __name__ == "__main__":
