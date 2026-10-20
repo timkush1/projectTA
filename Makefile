@@ -10,4 +10,4 @@ $(EXECUTABLE): $(SRC)
 	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(SRC) $(LDFLAGS)
 
 clean:
-	rm -f $(EXECUTABLE)
+	rm -rf $(EXECUTABLE) build *.so __pycache__

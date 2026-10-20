@@ -13,7 +13,6 @@ def print_matrix(H):
         print(",".join("{:.4f}".format(number) for number in row))
 
 if __name__ == "__main__":
-    # האם צריך לבדוק אם k קטן מ N
     k = int(sys.argv[1])
     goal = sys.argv[2]
     file_name = sys.argv[3]
